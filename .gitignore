@@ -1,0 +1,4 @@
+node_modules/
+# 自分で作った問題と画像（答えが含まれるので公開しない）
+questions.json
+uploads/

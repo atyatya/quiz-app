@@ -1,0 +1,16 @@
+{
+  "name": "quiz-app",
+  "version": "1.0.0",
+  "description": "出題者1人＋複数回答者で遊べるリアルタイムクイズ大会アプリ",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "online": "node server.js --online"
+  },
+  "dependencies": {
+    "cloudflared": "^0.7.3",
+    "express": "^4.21.0",
+    "qrcode": "^1.5.4",
+    "socket.io": "^4.8.0"
+  }
+}

@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>クイズ大会 - 出題者</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="wrap wide">
+  <h1>🎤 クイズ大会 出題者画面</h1>
+
+  <section id="login" class="card" style="max-width:480px">
+    <h2>出題者ログイン</h2>
+    <form id="loginForm" class="row">
+      <input id="pwInput" type="password" class="grow" placeholder="パスワード" required>
+      <button>ログイン</button>
+    </form>
+    <p class="error" id="loginError"></p>
+  </section>
+
+  <section id="main" class="hidden">
+    <div class="card row">
+      <div class="grow">
+        状態：<strong id="phaseLabel"></strong>
+        <span class="muted" id="progressLabel"></span>
+        <span class="timer" id="timer" style="font-size:1.4rem;margin-left:12px"></span>
+      </div>
+      <button id="btnNext">次の問題を出題</button>
+      <button id="btnClose" class="sub">回答締め切り</button>
+      <button id="btnReveal" class="ok">正解発表</button>
+      <button id="btnRanking" class="sub">📊 ランキングを映す</button>
+      <a href="/screen" target="_blank" rel="noopener"><button class="sub" type="button">🖥️ スクリーンを開く</button></a>
+      <button id="btnFinish" class="sub">大会終了</button>
+      <button id="btnReset" class="danger">リセット</button>
+    </div>
+
+    <div class="host-grid">
+      <div>
+        <div class="card">
+          <h2>現在の問題</h2>
+          <div id="current" class="muted">まだ出題していません</div>
+        </div>
+        <div class="card">
+          <h2>回答一覧 <span class="muted" id="answerCount"></span></h2>
+          <div id="normalPanel">
+            <table>
+              <thead><tr><th>回答者</th><th>回答</th><th class="num">時間</th><th>判定</th></tr></thead>
+              <tbody id="answers"></tbody>
+            </table>
+            <p class="muted">記述式は正解欄の表記（カンマ区切りで複数可）と自動照合します。判定ボタンで手動修正できます。<br>
+              回答者は締め切りまで回答を取り消して選び直せるため、全員が回答しても自動では締め切りません。</p>
+          </div>
+          <div id="buzzPanel" class="hidden">
+            <div id="buzzQueue"></div>
+            <div class="row" style="margin-top:12px">
+              <button class="ok" id="btnBuzzOk">⭕ 正解</button>
+              <button class="danger" id="btnBuzzNg">❌ 誤答（次の人へ）</button>
+              <button class="sub" id="btnBuzzReset">押した順をリセット</button>
+            </div>
+            <p class="muted" id="buzzWrong"></p>
+            <p class="muted">先頭の人が回答権を持ちます。誤答にすると、その人はこの問題で押せなくなり、次に押した人へ回答権が移ります。</p>
+          </div>
+        </div>
+        <div class="card">
+          <h2>参加者 <span class="muted" id="playerCount"></span></h2>
+          <table><tbody id="players"></tbody></table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="row" style="margin-bottom:12px">
+          <h2 class="grow" style="margin:0">問題リスト</h2>
+          <button class="sub small" id="btnAddChoice">＋ 選択式</button>
+          <button class="sub small" id="btnAddText">＋ 記述式</button>
+          <button class="sub small" id="btnAddBuzzer">＋ 早押し</button>
+          <button class="small" id="btnSave">保存</button>
+        </div>
+        <p class="error" id="editError"></p>
+        <div id="qlist"></div>
+      </div>
+    </div>
+  </section>
+</div>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/host.js"></script>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>クイズ大会 - スクリーン</title>
+  <style>
+    :root {
+      --bg: #0f1226; --panel: #1b1f3b; --text: #f2f3ff; --muted: #9aa0c8; --accent: #ffd34d;
+      --ok: #2ecc71; --ng: #ff5c5c;
+      --c0: #e05252; --c1: #3b82f6; --c2: #e0a800; --c3: #22a06b; --c4: #8b5cf6; --c5: #ec4899;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; }
+    body {
+      background: radial-gradient(ellipse at top, #22285a, var(--bg) 70%); color: var(--text);
+      font-family: system-ui, "Hiragino Sans", "Yu Gothic UI", sans-serif;
+      display: flex; flex-direction: column; overflow: hidden; cursor: default;
+    }
+    header { display: flex; align-items: center; gap: 2vw; padding: 1.5vh 3vw; font-size: clamp(16px, 2.2vw, 40px); }
+    header .title { font-weight: 800; flex: 1; }
+    header .progress { color: var(--muted); }
+    .timer { font-weight: 900; font-variant-numeric: tabular-nums; font-size: clamp(24px, 4vw, 80px); min-width: 2.2em; text-align: right; }
+    .timer.low { color: var(--ng); animation: pulse 1s infinite; }
+    main { flex: 1; display: flex; flex-direction: column; padding: 0 3vw 3vh; min-height: 0; }
+    .fade { animation: fade .4s ease-out; }
+    @keyframes fade { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+    @keyframes pulse { 50% { opacity: .5; } }
+    @keyframes pop { 0% { transform: scale(.6); opacity: 0; } 70% { transform: scale(1.08); } 100% { transform: none; opacity: 1; } }
+
+    .qtext { font-size: clamp(24px, 4.2vw, 96px); font-weight: 800; line-height: 1.35; white-space: pre-wrap; margin: 2vh 0 3vh; }
+    .qtext.center { text-align: center; margin: auto 0; }
+    .tag { display: inline-block; font-size: clamp(14px, 1.6vw, 32px); padding: .2em .8em; border-radius: 999px; background: var(--panel); color: var(--accent); font-weight: 700; }
+    .qarea { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+    .qarea.has-img { flex-direction: row; gap: 2vw; }
+    .qimg { flex: 1.2; position: relative; min-height: 0; }
+    .qimg img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+    .qcontent { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; }
+    .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 2vh 2vw; flex: 1; min-height: 0; }
+    .has-img .choices { grid-template-columns: 1fr; gap: 1.5vh; }
+    .has-img .choice { font-size: clamp(16px, 2.4vw, 56px); padding: 1vh 2vw; }
+    .has-img .answer-box .ans { font-size: clamp(28px, 5vw, 120px); }
+    .choice {
+      position: relative; border-radius: 1.2vw; padding: 2vh 2vw; display: flex; align-items: center; gap: 1.5vw;
+      font-size: clamp(18px, 3vw, 72px); font-weight: 700; overflow: hidden; color: #fff;
+    }
+    .choice .no { font-size: .8em; opacity: .85; }
+    .choice .label { flex: 1; position: relative; z-index: 1; }
+    .choice .count { position: relative; z-index: 1; font-variant-numeric: tabular-nums; }
+    .choice .bar { position: absolute; inset: 0 auto 0 0; background: rgba(255,255,255,.22); transition: width 1s ease-out; }
+    .choice.dim { opacity: .45; }
+    .choice.correct { outline: .5vw solid var(--accent); outline-offset: .3vw; animation: pop .5s; }
+    .footer { margin-top: 2vh; font-size: clamp(16px, 2vw, 44px); color: var(--muted); display: flex; justify-content: space-between; }
+    .footer strong { color: var(--text); }
+    .banner { text-align: center; font-size: clamp(20px, 3vw, 64px); font-weight: 800; color: var(--accent); margin-top: 2vh; }
+
+    .answer-box { text-align: center; margin: auto 0; animation: pop .6s; }
+    .answer-box .lbl { font-size: clamp(18px, 2.4vw, 52px); color: var(--muted); }
+    .answer-box .ans { font-size: clamp(36px, 7vw, 160px); font-weight: 900; color: var(--accent); }
+    .names { display: flex; flex-wrap: wrap; gap: 1vh 1vw; justify-content: center; margin-top: 2vh; }
+    .chip { background: var(--panel); padding: .3em .9em; border-radius: 999px; font-size: clamp(14px, 2vw, 44px); }
+    .chip.first { background: var(--accent); color: #1b1f3b; font-weight: 800; }
+
+    .buzz-list { display: flex; flex-direction: column; gap: 1.5vh; margin-top: 1vh; }
+    .buzz-item { display: flex; align-items: center; gap: 2vw; background: var(--panel); border-radius: 1vw; padding: 1.2vh 2vw; font-size: clamp(18px, 2.6vw, 60px); animation: fade .3s; }
+    .buzz-item.first { background: var(--ng); font-size: clamp(28px, 5vw, 120px); font-weight: 900; animation: pop .4s; }
+    .buzz-item .t { color: var(--muted); margin-left: auto; font-size: .6em; }
+    .buzz-item.first .t { color: #fff; }
+
+    .lobby { flex: 1; display: grid; grid-template-columns: auto 1fr; gap: 4vw; align-items: center; }
+    .qr { background: #fff; padding: 1.5vw; border-radius: 1.5vw; width: min(36vw, 62vh); }
+    .qr svg { display: block; width: 100%; height: auto; }
+    .lobby h1 { font-size: clamp(32px, 6vw, 140px); margin: 0; }
+    .lobby .url { font-size: clamp(16px, 2.4vw, 56px); color: var(--accent); word-break: break-all; margin: 2vh 0; }
+    .lobby .names { justify-content: flex-start; }
+
+    .ranking { flex: 1; display: flex; flex-direction: column; gap: 1vh; justify-content: center; max-width: 70vw; margin: 0 auto; width: 100%; }
+    .rank-row { display: flex; align-items: center; gap: 2vw; background: var(--panel); border-radius: 1vw; padding: 1vh 2vw; font-size: clamp(16px, 2.6vw, 60px); animation: fade .4s backwards; }
+    .rank-row .pos { width: 2.5em; font-weight: 900; color: var(--muted); }
+    .rank-row .nm { flex: 1; font-weight: 700; }
+    .rank-row .sc { font-variant-numeric: tabular-nums; font-weight: 800; }
+    .rank-row.r1 { background: linear-gradient(90deg, #b8860b, #ffd34d); color: #1b1f3b; font-size: clamp(22px, 3.6vw, 84px); }
+    .rank-row.r1 .pos { color: #1b1f3b; }
+    .rank-row.r2 { background: linear-gradient(90deg, #6b7280, #c0c4cc); color: #1b1f3b; }
+    .rank-row.r2 .pos { color: #1b1f3b; }
+    .rank-row.r3 { background: linear-gradient(90deg, #7c4a1e, #cd7f32); }
+    .rank-row.r3 .pos { color: #fff; }
+    .big-title { text-align: center; font-size: clamp(28px, 5vw, 120px); font-weight: 900; margin: 1vh 0 2vh; }
+
+    #fsBtn { position: fixed; right: 12px; bottom: 12px; background: var(--panel); color: var(--muted); border: none; border-radius: 8px; padding: 8px 14px; font: inherit; cursor: pointer; opacity: .6; }
+    #fsBtn:hover { opacity: 1; }
+    #conn { position: fixed; left: 12px; bottom: 12px; color: var(--ng); font-size: 14px; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="title">🎯 クイズ大会</div>
+    <div class="progress" id="progress"></div>
+    <div class="timer" id="timer"></div>
+  </header>
+  <main id="main"></main>
+  <button id="fsBtn">⛶ 全画面</button>
+  <div id="conn"></div>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/screen.js"></script>
+</body>
+</html>
